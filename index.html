@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
       // Redirect to HTTPS if HTTP is requested.
+      // Comment out if running locally
       if (window.location.protocol === 'http:') {
-        //window.location.href = 'https:' + window.location.href.substring(5);
+        window.location.href = 'https:' + window.location.href.substring(5);
       }
     </script>
     <script type="importmap">

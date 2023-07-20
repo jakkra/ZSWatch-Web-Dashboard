@@ -12,7 +12,14 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'gltfloader';
 
+const bleNusServiceUUID  = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const bleNusCharRXUUID   = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+const bleNusCharTXUUID   = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+
 let device;
+let nusService;
+var rxCharacteristic;
+var txCharacteristic;
 
 const bufferSize = 64;
 const colors = ['#00a7e9', '#f89521', '#be1e2d'];
@@ -361,6 +368,7 @@ async function connect() {
     for (let panelId of Object.keys(panels)) {
       services.push(getFullId(panels[panelId].serviceId));
     }
+    services.push(bleNusServiceUUID)
     if (knownOnly.checked) {
       let knownBoards = Object.keys(boards);
       knownBoards.pop();
@@ -407,6 +415,8 @@ async function connect() {
     }
 
     reset();
+
+    await sendTimestampNus(server)
 
     for (let panelId of activePanels) {
       let service = await server.getPrimaryService(getFullId(panels[panelId].serviceId)).catch(error => {console.log(error);});
@@ -548,6 +558,64 @@ function enableStyleSheet(node, enabled) {
   node.disabled = !enabled;
 }
 
+function handleNotifications(event) {
+  console.log('notification');
+  let value = event.target.value;
+  // Convert raw data bytes to character values and use these to 
+  // construct a string.
+  let str = "";
+  for (let i = 0; i < value.byteLength; i++) {
+      str += String.fromCharCode(value.getUint8(i));
+  }
+  console.log(str);
+}
+
+function nusSendString(s) {
+    console.log("send: " + s);
+    let val_arr = new Uint8Array(s.length)
+    for (let i = 0; i < s.length; i++) {
+        let val = s[i].charCodeAt(0);
+        val_arr[i] = val;
+    }
+    rxCharacteristic.writeValue(val_arr)
+}
+
+async function sendTimestampNus(server) {
+  server.getPrimaryService(bleNusServiceUUID)
+  .then(service => {
+      nusService = service;
+      console.log('Found NUS service: ' + service.uuid);
+  })
+  .then(() => {
+      console.log('Locate RX characteristic');
+      return nusService.getCharacteristic(bleNusCharRXUUID);
+  })
+  .then(characteristic => {
+      rxCharacteristic = characteristic;
+      console.log('Found RX characteristic');
+  })
+  .then(() => {
+      console.log('Locate TX characteristic');
+      return nusService.getCharacteristic(bleNusCharTXUUID);
+  })
+  .then(characteristic => {
+      txCharacteristic = characteristic;
+      console.log('Found TX characteristic');
+  })
+  .then(() => {
+      console.log('Enable notifications');
+      return txCharacteristic.startNotifications();
+  })
+  .then(() => {
+      console.log('Notifications started');
+      txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+      nusSendString('setTime(' + Math.round(Date.now() / 1000) + ')');
+  })
+  .catch(error => {
+      console.log('' + error);
+  });
+}
+
 /**
  * @name reset
  * Reset the Panels, Log, and associated data
@@ -584,7 +652,9 @@ async function clickConnect() {
     return;
   }
 
-  await connect().then(_ => {toggleUIConnected(true);}).catch(() => {});
+  await connect().then(_ => {
+    toggleUIConnected(true);
+  }).catch(() => {});
 }
 
 async function onDisconnected(event) {
