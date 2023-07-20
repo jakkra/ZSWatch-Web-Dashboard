@@ -21,15 +21,13 @@ const measurementPeriodId = '0001';
 const maxLogLength = 500;
 const log = document.getElementById('log');
 const butConnect = document.getElementById('butConnect');
-const butClear = document.getElementById('butClear');
-const autoscroll = document.getElementById('autoscroll');
-const showTimestamp = document.getElementById('showTimestamp');
+const showLog = document.getElementById('showLog');
 const lightSS = document.getElementById('light');
 const darkSS = document.getElementById('dark');
 const darkMode = document.getElementById('darkmode');
 const dashboard = document.getElementById('dashboard');
-const fpsCounter = document.getElementById("fpsCounter");
 const knownOnly = document.getElementById("knownonly");
+const logPanel = document.getElementById("log");
 
 let colorIndex = 0;
 let activePanels = [];
@@ -39,11 +37,13 @@ let buttonState = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
   butConnect.addEventListener('click', clickConnect);
-  butClear.addEventListener('click', clickClear);
-  autoscroll.addEventListener('click', clickAutoscroll);
-  showTimestamp.addEventListener('click', clickTimestamp);
-  darkMode.addEventListener('click', clickDarkMode);
-  knownOnly.addEventListener('click', clickKnownOnly);
+  showLog.addEventListener('click', clickShowLog);
+  if (darkMode) {
+    darkMode.addEventListener('click', clickDarkMode);
+  }
+  if (knownOnly) {
+      knownOnly.addEventListener('click', clickKnownOnly);
+  }
 
   if ('bluetooth' in navigator) {
     const notSupported = document.getElementById('notSupported');
@@ -75,6 +75,9 @@ const boards = {
     hasSwitch: false,
     buttons: 1,
   },
+  ZSWatch: {
+    buttons: 4,
+  },
   unknown: {
     colorOrder: 'GRB',
     neopixels: 1,
@@ -84,6 +87,7 @@ const boards = {
 }
 
 let panels = {
+
   battery: {
     title: 'Battery Level',
     serviceId: 'battery_service',
@@ -130,6 +134,7 @@ let panels = {
       }
     },
   },
+
   temperature: {
     serviceId: '0100',
     characteristicId: '0101',
@@ -138,9 +143,10 @@ let panels = {
     data: {temperature:[]},
     properties: ['notify'],
     textFormat: function(value) {
-      return numeral((9 / 5 * value) + 32).format('0.00') + '&deg; F';
+      return numeral(value).format('0.00') + '&deg; C';
     },
   },
+  /*
   light: {
     serviceId: '0300',
     characteristicId: '0301',
@@ -149,6 +155,7 @@ let panels = {
     data: {light:[]},
     properties: ['notify'],
   },
+  */
   accelerometer: {
     serviceId: '0200',
     characteristicId: '0201',
@@ -159,7 +166,6 @@ let panels = {
     textFormat: function(value) {
       return numeral(value).format('0.00');
     },
-    measurementPeriod: 500,
   },
   gyroscope: {
     serviceId: '0400',
@@ -171,7 +177,6 @@ let panels = {
     textFormat: function(value) {
       return numeral(value).format('0.00');
     },
-    measurementPeriod: 500,
   },
   magnetometer: {
     serviceId: '0500',
@@ -183,8 +188,8 @@ let panels = {
     textFormat: function(value) {
       return numeral(value).format('0.00') + ' &micro;T';
     },
-    measurementPeriod: 500,
   },
+  /*
   buttons: {
     serviceId: '0600',
     characteristicId: '0601',
@@ -237,6 +242,7 @@ let panels = {
       panelElement.querySelector(".content #onboardSwitch").checked = buttonState & 1;
     },
   },
+  */
   humidity: {
     serviceId: '0700',
     characteristicId: '0701',
@@ -259,6 +265,7 @@ let panels = {
       return numeral(value).format('0.00') + ' hPA';
     },
   },
+  /*
   tone: {
     serviceId: '0c00',
     characteristicId: '0c01',
@@ -295,8 +302,8 @@ let panels = {
     textFormat: function(value) {
       return numeral(value).format('0.00') + ' rad';
     },
-    measurementPeriod: 200,
   },
+  */
 };
 
 function playSound(frequency, duration, callback) {
@@ -460,6 +467,7 @@ async function connect() {
 async function readActiveSensors() {
   for (let panelId of activePanels) {
     let panel = panels[panelId];
+
     if (panels[panelId].properties.includes("read") || panels[panelId].properties.includes("notify")) {
       await panels[panelId].characteristic.readValue().then(function(data){handleIncoming(panelId, data);});
     }
@@ -510,13 +518,6 @@ function getFullId(shortId) {
 
 function logMsg(text) {
   // Update the Log
-  if (showTimestamp.checked) {
-    let d = new Date();
-    let timestamp = d.getHours() + ":" + `${d.getMinutes()}`.padStart(2, 0) + ":" +
-        `${d.getSeconds()}`.padStart(2, 0) + "." + `${d.getMilliseconds()}`.padStart(3, 0);
-    log.innerHTML += '<span class="timestamp">' + timestamp + ' -> </span>';
-    d = null;
-  }
   log.innerHTML += text+ "<br>";
 
   // Remove old log content
@@ -525,9 +526,7 @@ function logMsg(text) {
     log.innerHTML = logLines.splice(-maxLogLength).join("<br>\n");
   }
 
-  if (autoscroll.checked) {
-    log.scrollTop = log.scrollHeight
-  }
+  log.scrollTop = log.scrollHeight
 }
 
 /**
@@ -542,11 +541,7 @@ function updateTheme() {
       enableStyleSheet(styleSheet, false);
     });
 
-  if (darkMode.checked) {
     enableStyleSheet(darkSS, true);
-  } else {
-    enableStyleSheet(lightSS, true);
-  }
 }
 
 function enableStyleSheet(node, enabled) {
@@ -612,19 +607,16 @@ async function onDisconnected(event) {
 }
 
 /**
- * @name clickAutoscroll
- * Change handler for the Autoscroll checkbox.
+ * @name clickShowLog
+ * Change handler for the Show Log checkbox.
  */
-async function clickAutoscroll() {
-  saveSetting('autoscroll', autoscroll.checked);
-}
-
-/**
- * @name clickTimestamp
- * Change handler for the Show Timestamp checkbox.
- */
-async function clickTimestamp() {
-  saveSetting('timestamp', showTimestamp.checked);
+async function clickShowLog() {
+  saveSetting('showlog', showLog.checked);
+  if (showLog.checked) {
+    logPanel.style.visibility = 'visible';
+  } else {
+    logPanel.style.visibility = 'hidden';
+  }
 }
 
 /**
@@ -635,8 +627,6 @@ async function clickDarkMode() {
   updateTheme();
   saveSetting('darkmode', darkMode.checked);
 }
-
-
 
 /**
  * @name clickKnownOnly
@@ -673,10 +663,16 @@ function toggleUIConnected(connected) {
 
 function loadAllSettings() {
   // Load all saved settings or defaults
-  autoscroll.checked = loadSetting('autoscroll', true);
-  showTimestamp.checked = loadSetting('timestamp', false);
-  darkMode.checked = loadSetting('darkmode', false);
-  knownOnly.checked = loadSetting('knownonly', true);
+  showLog.checked = loadSetting('showlog', false);
+  if (darkMode) {
+    darkMode.checked = loadSetting('darkmode', true);
+  }
+  if (knownOnly) {
+    knownOnly.checked = loadSetting('knownonly', true);
+  }
+  if (!showLog.checked) {
+    logPanel.style.visibility = 'hidden';
+  }
 }
 
 function loadSetting(setting, defaultValue) {

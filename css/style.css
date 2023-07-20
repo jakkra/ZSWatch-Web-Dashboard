@@ -7,7 +7,7 @@
   font-size: 16px;
   height: 85px;
   line-height: 40px;
-  padding: 20px 70px 0px 70px; /* TRouBLe */
+  padding: 20px 5px 0px 20px; /* TRouBLe */
   position: fixed;
   width: 100%;
   z-index: 1000;
@@ -32,6 +32,10 @@
 .header button:hover {
   background-color: #fff;
   color: #000;
+}
+
+.header .right {
+  top: 50%;
 }
 
 button {
@@ -71,14 +75,21 @@ div.right {
   align-items: center;
 }
 
+div.center {
+  float:none;
+  display: flex;
+  align-items: center;
+}
+
 div.clear {
   clear: both;
 }
 
-.Adafruit-Logo {
-  width: 115px;
+.ZSWatch-Logo {
+  width: 140px;
   height: 40px;
   object-fit: contain;
+  margin-bottom: 20px;
 }
 
 .main {
@@ -100,8 +111,8 @@ div.clear {
 .subheader {
   height: 100px;
   line-height: 100px;
-  padding-left: 70px;
-  padding-right: 70px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .subheader .title {
@@ -110,8 +121,11 @@ div.clear {
 }
 
 #dashboard {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  min-height: 20vh;
   position: relative;
-  height: calc(60vh - 190px);
   margin: 0 auto;
   overflow-y: auto;
   padding: 0 60px;
@@ -190,7 +204,7 @@ div.clear {
 }
 
 #log {
-  height: calc(40vh - 190px);
+  height: calc(40vh - 150px);
   width: 100%;
   font-family: pt-mono, monospace;
   font-style: normal;
@@ -199,15 +213,27 @@ div.clear {
   overflow-x: hidden;
   overflow-x: auto;
   transition : color 0.1s linear;
-  padding: 0 50px;
+  padding: 0 2px;
   border: 20px solid #000;
+  border-bottom: 30px solid #000;
+  background-image: none;
+  background-repeat: repeat;
+  background-attachment: scroll;
+  background-position: 0% 0%;
+  position: fixed;
+  bottom: 0pt;
+  left: 0pt;
 }
 
 .footer {
-  height: 45px;
-  line-height: 45px;
-  padding-left: 70px;
-  padding-right: 70px;
+  width: 100%;
+  background-image: none;
+  background-repeat: repeat;
+  background-attachment: scroll;
+  background-position: 0% 0%;
+  position: fixed;
+  bottom: 0pt;
+  left: 0pt;
 }
 
 .footer button {
@@ -323,6 +349,11 @@ div.clear {
 .footer .onoffswitch {
   margin-right: 20px;
 }
+
+.footer .right {
+  margin-bottom: 10px;
+}
+
 
 #fpsCounter {
   margin-right: 10px;

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Adafruit Web Bluetooth Dashboard</title>
+    <title>ZSWatch Web Bluetooth Dashboard</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
       // Redirect to HTTPS if HTTP is requested.
       if (window.location.protocol === 'http:') {
-        window.location.href = 'https:' + window.location.href.substring(5);
+        //window.location.href = 'https:' + window.location.href.substring(5);
       }
     </script>
     <script type="importmap">
@@ -39,12 +39,9 @@
   <body>
     <header class="header">
       <div class="left">
-        <img src="assets/adafruit-logo.svg" class="Adafruit-Logo">
+        <img src="assets/zswatch-text.png" class="ZSWatch-Logo">
       </div>
       <div class="right">
-        <label for="knownonly">
-          Show only known devices
-        </label>
         <div class="onoffswitch">
           <input type="checkbox" name="knownonly" class="onoffswitch-checkbox" id="knownonly">
           <label class="onoffswitch-label" for="knownonly">
@@ -63,47 +60,26 @@
         <code>chrome://flags</code>
       </div>
       <div class="subheader">
-        <div class="title left">
-          Web Bluetooth Dashboard
+        <div class="title">
+          Dashboard
         </div>
         <div class="right">
-          <label for="darkmode">
-            Dark Mode
-          </label>
-          <div class="onoffswitch">
-            <input type="checkbox" name="darkmode" class="onoffswitch-checkbox" id="darkmode">
-            <label class="onoffswitch-label" for="darkmode">
-              <span class="onoffswitch-inner"></span>
-              <span class="onoffswitch-switch"></span>
-            </label>
-          </div>
+          
         </div>
       </div>
       <div id="dashboard"></div>
       <div id="log"></div>
     </main>
     <footer class="footer">
-      <div class="left">
-        <label for="autoscroll">Autoscroll</label>
-        <div class="onoffswitch">
-          <input type="checkbox" name="autoscroll" class="onoffswitch-checkbox" id="autoscroll">
-          <label class="onoffswitch-label" for="autoscroll">
-            <span class="onoffswitch-inner"></span>
-            <span class="onoffswitch-switch"></span>
-          </label>
-        </div>
-        <label for="showTimestamp">Show Timestamp</label>
-        <div class="onoffswitch">
-          <input type="checkbox" name="showTimestamp" class="onoffswitch-checkbox" id="showTimestamp">
-          <label class="onoffswitch-label" for="showTimestamp">
-            <span class="onoffswitch-inner"></span>
-            <span class="onoffswitch-switch"></span>
-          </label>
-        </div>
-      </div>
       <div class="right">
-        <span id="fpsCounter"></span>
-        <button id="butClear" type="button">Clear Text</button>
+        <label for="showLog">Log</label>
+        <div class="onoffswitch">
+          <input type="checkbox" name="showLog" class="onoffswitch-checkbox" id="showLog">
+          <label class="onoffswitch-label" for="showLog">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+          </label>
+        </div>
       </div>
     </footer>
     <div id="templates">
