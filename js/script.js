@@ -153,7 +153,6 @@ let panels = {
       return numeral(value).format('0.00') + '&deg; C';
     },
   },
-  /*
   light: {
     serviceId: '0300',
     characteristicId: '0301',
@@ -162,7 +161,6 @@ let panels = {
     data: {light:[]},
     properties: ['notify'],
   },
-  */
   accelerometer: {
     serviceId: '0200',
     characteristicId: '0201',
